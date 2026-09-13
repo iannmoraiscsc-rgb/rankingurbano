@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ranking de Motoristas — Grupo CSC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal-700:#0B6E63;
+    --teal-600:#0E8F82;
+    --teal-500:#14A597;
+    --teal-100:#DDF3EF;
+    --teal-050:#F0FAF8;
+    --ink-900:#1E2124;
+    --ink-700:#3A3E43;
+    --ink-500:#6B7178;
+    --ink-300:#9AA0A6;
+    --line:#E7E9EC;
+    --paper:#F7F8F8;
+    --white:#FFFFFF;
+    --red-600:#C24A43;
+    --red-100:#FBEAE8;
+    --radius-lg:22px;
+    --radius-md:14px;
+    --radius-sm:10px;
+    --shadow-soft:0 1px 2px rgba(30,33,36,0.04), 0 8px 24px rgba(30,33,36,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink-900);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 24px 80px;}
+
+  /* Header */
+  .topbar{
+    display:flex;justify-content:space-between;align-items:center;
+    flex-wrap:wrap;gap:16px;
+    margin-bottom:28px;
+  }
+  .brand{display:flex;align-items:center;gap:14px;}
+  .brand-mark{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:44px;height:44px;border-radius:13px;
+    background:linear-gradient(135deg,var(--teal-500),var(--teal-700));
+    color:#fff;font-weight:800;font-size:19px;letter-spacing:-1px;
+    box-shadow:0 6px 16px rgba(14,143,130,0.28);
+  }
+  .brand-text strong{display:block;font-size:13px;color:var(--ink-500);font-weight:600;letter-spacing:0.2px;}
+  .brand-text h1{margin:1px 0 0;font-size:22px;font-weight:700;letter-spacing:-0.3px;color:var(--ink-900);}
+
+  .btn{
+    border:none;cursor:pointer;font-family:inherit;font-weight:600;font-size:14.5px;
+    padding:11px 20px;border-radius:12px;transition:transform .12s ease, box-shadow .12s ease, background .15s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{
+    background:var(--ink-900);color:#fff;
+    box-shadow:0 2px 8px rgba(30,33,36,0.18);
+  }
+  .btn-primary:hover{background:#000;}
+  .btn-ghost{background:transparent;color:var(--ink-500);}
+  .btn-ghost:hover{color:var(--ink-900);}
+
+  /* Toolbar */
+  .toolbar{
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;
+    margin-bottom:20px;
+  }
+  .date-pills{display:flex;gap:8px;flex-wrap:wrap;}
+  .pill{
+    position:relative;display:flex;align-items:center;gap:8px;
+    padding:8px 14px;border-radius:999px;background:var(--white);
+    border:1px solid var(--line);font-size:13.5px;font-weight:600;color:var(--ink-500);
+    cursor:pointer;transition:all .15s ease;
+  }
+  .pill:hover{border-color:var(--teal-500);color:var(--ink-900);}
+  .pill.active{background:var(--ink-900);border-color:var(--ink-900);color:#fff;}
+  .pill .del{
+    opacity:0;font-size:13px;line-height:1;color:inherit;margin-left:2px;
+    transition:opacity .15s ease;
+  }
+  .pill:hover .del{opacity:0.55;}
+  .pill .del:hover{opacity:1;}
+
+  .controls{display:flex;align-items:center;gap:10px;}
+  select{
+    appearance:none;-webkit-appearance:none;
+    font-family:inherit;font-size:13.5px;font-weight:600;color:var(--ink-900);
+    background:var(--white) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%236B7178'/></svg>") no-repeat right 14px center;
+    border:1px solid var(--line);border-radius:12px;padding:10px 34px 10px 14px;cursor:pointer;
+  }
+  .chip-toggle{
+    display:flex;align-items:center;gap:7px;
+    font-family:inherit;font-size:13.5px;font-weight:600;color:var(--ink-500);
+    background:var(--white);border:1px solid var(--line);border-radius:12px;
+    padding:10px 16px;cursor:pointer;transition:all .15s ease;
+  }
+  .chip-toggle:hover{border-color:var(--red-600);color:var(--red-600);}
+  .chip-toggle.active{background:var(--red-600);border-color:var(--red-600);color:#fff;}
+
+  /* Table */
+  .table-card{
+    background:var(--white);border:1px solid var(--line);border-radius:var(--radius-lg);
+    overflow:hidden;box-shadow:var(--shadow-soft);
+  }
+  table{width:100%;border-collapse:collapse;}
+  thead th{
+    text-align:left;font-size:12.5px;font-weight:600;color:var(--ink-500);
+    padding:16px 18px;border-bottom:1px solid var(--line);white-space:nowrap;
+  }
+  thead th.num{text-align:right;}
+  tbody tr.row{cursor:pointer;transition:background .12s ease;}
+  tbody tr.row:hover{background:var(--teal-050);}
+  tbody tr.row td{padding:14px 18px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:middle;}
+  tbody tr.row:last-child td{border-bottom:none;}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-700);}
+  .rank{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:26px;height:26px;border-radius:8px;font-size:12.5px;font-weight:700;
+    background:var(--paper);color:var(--ink-500);
+  }
+  .rank.top{background:var(--teal-100);color:var(--teal-700);}
+  .rank.bottom{background:var(--red-100);color:var(--red-600);}
+  .name{font-weight:600;color:var(--ink-900);}
+
+  .score-cell{display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:150px;}
+  .score-value{font-weight:700;font-variant-numeric:tabular-nums;font-size:14px;}
+  .score-value.pos{color:var(--teal-700);}
+  .score-value.neg{color:var(--red-600);}
+  .bar-track{position:relative;width:140px;height:6px;border-radius:4px;background:var(--paper);overflow:hidden;}
+  .bar-fill{position:absolute;top:0;bottom:0;border-radius:4px;}
+  .bar-fill.pos{background:var(--teal-500);left:50%;}
+  .bar-fill.neg{background:var(--red-600);right:50%;}
+  .bar-mid{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--line);}
+
+  /* Detail row */
+  tr.detail-row td{padding:0;border-bottom:1px solid var(--line);}
+  tr.detail-row.hidden{display:none;}
+  .detail-inner{padding:6px 18px 20px 62px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
+  .metric{
+    background:var(--paper);border-radius:var(--radius-sm);padding:10px 13px;
+  }
+  .metric .m-label{font-size:11.5px;color:var(--ink-500);font-weight:600;margin-bottom:4px;}
+  .metric .m-value{font-size:14.5px;font-weight:700;color:var(--ink-900);}
+  .metric .m-pts{font-size:12px;margin-top:2px;font-weight:600;}
+  .metric .m-pts.pos{color:var(--teal-700);}
+  .metric .m-pts.neg{color:var(--red-600);}
+
+  /* Empty state */
+  .empty{
+    background:var(--white);border:1.5px dashed var(--line);border-radius:var(--radius-lg);
+    padding:70px 24px;text-align:center;
+  }
+  .empty .icon{
+    width:56px;height:56px;border-radius:16px;margin:0 auto 20px;
+    background:var(--teal-100);color:var(--teal-700);
+    display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;
+  }
+  .empty h2{font-size:18px;margin:0 0 8px;font-weight:700;}
+  .empty p{color:var(--ink-500);font-size:14.5px;max-width:380px;margin:0 auto 22px;line-height:1.5;}
+
+  /* Modal */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(30,33,36,0.35);
+    display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;
+    backdrop-filter:blur(2px);
+  }
+  .modal-overlay.hidden{display:none;}
+  .modal{
+    background:#fff;border-radius:var(--radius-lg);padding:28px;width:100%;max-width:360px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.25);
+  }
+  .modal h3{margin:0 0 8px;font-size:17px;font-weight:700;}
+  .modal p{margin:0 0 18px;font-size:13.5px;color:var(--ink-500);line-height:1.5;}
+  .modal input[type="date"]{
+    width:100%;font-family:inherit;font-size:14.5px;padding:11px 13px;
+    border:1px solid var(--line);border-radius:12px;margin-bottom:20px;color:var(--ink-900);
+  }
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;}
+
+  /* Toast */
+  .toast{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%);
+    background:var(--ink-900);color:#fff;padding:12px 20px;border-radius:12px;
+    font-size:13.5px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    z-index:60;opacity:0;pointer-events:none;transition:opacity .2s ease, transform .2s ease;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast.error{background:var(--red-600);}
+
+  .footnote{margin-top:16px;font-size:12px;color:var(--ink-300);text-align:center;}
+
+  @media (max-width:640px){
+    .table-card{overflow-x:auto;}
+    table{min-width:640px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">&raquo;</span>
+      <div class="brand-text">
+        <strong>GRUPO CSC</strong>
+        <h1>Ranking de Motoristas</h1>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <input type="file" id="fileInput" accept=".xlsx,.xls" hidden>
+      <button class="btn btn-ghost" id="clearBtn">Limpar histórico</button>
+      <button class="btn btn-primary" id="importBtn">Importar planilha</button>
+    </div>
+  </header>
+
+  <section class="toolbar" id="toolbar" style="display:none;">
+    <div class="date-pills" id="datePills"></div>
+    <div class="controls">
+      <select id="sortSelect">
+        <option value="score-desc">Melhor condução primeiro</option>
+        <option value="score-asc">Pior condução primeiro</option>
+        <option value="km-desc">Mais km rodados</option>
+        <option value="km-asc">Menos km rodados</option>
+      </select>
+      <button class="chip-toggle" id="worstToggle">⚠ Top 5 piores</button>
+    </div>
+  </section>
+
+  <main id="content">
+    <div class="empty" id="emptyState">
+      <div class="icon">&raquo;</div>
+      <h2>Nenhuma planilha importada ainda</h2>
+      <p>Importe a planilha exportada do painel de telemetria para gerar o ranking de condução por motorista.</p>
+      <button class="btn btn-primary" id="importBtnEmpty">Importar planilha</button>
+    </div>
+
+    <div class="table-card" id="tableWrap" style="display:none;">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Motorista</th>
+            <th class="num">Km</th>
+            <th class="num">Km/L</th>
+            <th class="num">Pontuação</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <p class="footnote">Dados salvos automaticamente e visíveis a todos que abrirem este painel.</p>
+</div>
+
+<div class="modal-overlay hidden" id="dateModal">
+  <div class="modal">
+    <h3>Qual a data desta planilha?</h3>
+    <p>Isso organiza a análise por dia. Se já existir uma planilha com a mesma data, ela será substituída.</p>
+    <input type="date" id="dateInput">
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancelImport">Cancelar</button>
+      <button class="btn btn-primary" id="confirmImport">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="confirmModal">
+  <div class="modal">
+    <h3>Limpar todo o histórico?</h3>
+    <p>Isso vai apagar todas as planilhas já importadas e as análises de todas as datas. Essa ação não pode ser desfeita.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancelClear">Cancelar</button>
+      <button class="btn btn-primary" id="confirmClear" style="background:var(--red-600);">Apagar tudo</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="diagnosticModal">
+  <div class="modal" style="max-width:520px;">
+    <h3>Não encontramos a coluna "Motorista"</h3>
+    <p>Veja abaixo exatamente o que lemos nas primeiras linhas da planilha. Se quiser, copie e me envie para eu ajustar a leitura.</p>
+    <pre id="diagnosticContent" style="background:var(--paper);border-radius:12px;padding:14px;font-size:12px;line-height:1.6;max-height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word;color:var(--ink-700);margin:0 0 18px;"></pre>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="closeDiagnostic">Fechar</button>
+      <button class="btn btn-primary" id="copyDiagnostic">Copiar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const WEIGHTS = { lenta:-60, abaixoVerde:-50, economico:100, potencia:50, amarelo:-85, vermelho:-200 };
+  const HEADER_ALIASES = {
+    motorista:['motorista'],
+    lenta:['lenta'],
+    abaixoVerde:['abaixo da verde','abaixo verde'],
+    economico:['economico'],
+    potencia:['potencia'],
+    amarelo:['amarelo'],
+    vermelho:['vermelho'],
+    km:['km'],
+    kml:['km/l','kml'],
+    velMedia:['velocidade media (km/h)','velocidade media','velocidade media(km/h)'],
+    horasMov:['horas movimento','horas de movimento']
+  };
+  const STORAGE_KEY = 'csc-ranking-analyses';
+  const XLSX_MIRRORS = [
+    'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+    'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js',
+    'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'
+  ];
+  let libStatus = 'loading'; // 'loading' | 'ready' | 'failed'
+
+  function loadScript(url){
+    return new Promise((resolve, reject)=>{
+      const s = document.createElement('script');
+      s.src = url;
+      s.onload = ()=> resolve(true);
+      s.onerror = ()=> reject(new Error('falha ao carregar ' + url));
+      document.head.appendChild(s);
+    });
+  }
+
+  async function ensureXlsxLib(){
+    if(window.XLSX){ libStatus = 'ready'; return true; }
+    for(const url of XLSX_MIRRORS){
+      try{
+        await loadScript(url);
+        if(window.XLSX){ libStatus = 'ready'; return true; }
+      }catch(e){ /* try next mirror */ }
+    }
+    libStatus = 'failed';
+    return false;
+  }
+
+  let analyses = {};
+  let currentDate = null;
+  let sortMode = 'score-desc';
+  let showWorst5 = false;
+  let pendingRows = null;
+
+  const els = {
+    fileInput: document.getElementById('fileInput'),
+    importBtn: document.getElementById('importBtn'),
+    importBtnEmpty: document.getElementById('importBtnEmpty'),
+    toolbar: document.getElementById('toolbar'),
+    datePills: document.getElementById('datePills'),
+    sortSelect: document.getElementById('sortSelect'),
+    worstToggle: document.getElementById('worstToggle'),
+    emptyState: document.getElementById('emptyState'),
+    tableWrap: document.getElementById('tableWrap'),
+    tbody: document.getElementById('tbody'),
+    dateModal: document.getElementById('dateModal'),
+    dateInput: document.getElementById('dateInput'),
+    cancelImport: document.getElementById('cancelImport'),
+    confirmImport: document.getElementById('confirmImport'),
+    toast: document.getElementById('toast')
+  };
+
+  function normalize(s){
+    return (s===null||s===undefined) ? '' : s.toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
+  }
+
+  function showToast(msg, isError){
+    els.toast.textContent = msg;
+    els.toast.classList.toggle('error', !!isError);
+    els.toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=> els.toast.classList.remove('show'), 3200);
+  }
+
+  async function loadAll(){
+    try{
+      const res = await window.storage.get(STORAGE_KEY, true);
+      analyses = res ? JSON.parse(res.value) : {};
+    }catch(e){
+      analyses = {};
+    }
+  }
+
+  async function saveAll(){
+    try{
+      const res = await window.storage.set(STORAGE_KEY, JSON.stringify(analyses), true);
+      if(!res) throw new Error('sem retorno');
+      return true;
+    }catch(e){
+      showToast('Não foi possível salvar os dados.', true);
+      return false;
+    }
+  }
+
+  function findHeaderAndRows(wb){
+    let preview = null;
+    for(const sheetName of wb.SheetNames){
+      const sheet = wb.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(sheet, {header:1, raw:true, defval:null});
+      if(preview === null) preview = rows.slice(0, 8);
+      let headerIdx = -1, colMap = {};
+      for(let i=0;i<rows.length;i++){
+        const row = rows[i];
+        if(!row) continue;
+        const norm = row.map(normalize);
+        if(norm.includes('motorista')){
+          headerIdx = i;
+          row.forEach((cell, ci)=>{
+            const n = normalize(cell);
+            for(const key in HEADER_ALIASES){
+              if(HEADER_ALIASES[key].includes(n) && !(key in colMap)) colMap[key] = ci;
+            }
+          });
+          break;
+        }
+      }
+      if(headerIdx !== -1 && colMap.motorista !== undefined){
+        return {found:true, rows, headerIdx, colMap};
+      }
+    }
+    return {found:false, preview};
+  }
+
+  function extractRows(rows, headerIdx, colMap){
+    const out = [];
+    for(let i=headerIdx+1;i<rows.length;i++){
+      const row = rows[i];
+      if(!row) continue;
+      const nameRaw = row[colMap.motorista];
+      const name = nameRaw ? nameRaw.toString().trim() : '';
+      if(!name || normalize(name) === 'total') continue;
+      // Skip footer/metadata lines some exports append below the data (e.g. "Filtros aplicados: ...")
+      if(name.includes(':') || /[\r\n]/.test(name)) continue;
+
+      const get = (key)=>{
+        const idx = colMap[key];
+        if(idx === undefined) return 0;
+        const v = row[idx];
+        if(typeof v === 'number') return v;
+        if(v === null || v === undefined || v === '') return 0;
+        // handle values like "50,3%" or "1.837,32" coming through as text
+        let str = v.toString().trim();
+        const isPct = str.includes('%');
+        str = str.replace('%','').trim();
+        if(str.includes(',') && str.includes('.')){
+          str = str.replace(/\./g,'').replace(',', '.');
+        } else if(str.includes(',')){
+          str = str.replace(',', '.');
+        }
+        let num = parseFloat(str) || 0;
+        if(isPct) num = num / 100;
+        return num;
+      };
+
+      const entry = {
+        motorista: name,
+        lenta: get('lenta'),
+        abaixoVerde: get('abaixoVerde'),
+        economico: get('economico'),
+        potencia: get('potencia'),
+        amarelo: get('amarelo'),
+        vermelho: get('vermelho'),
+        km: get('km'),
+        kml: get('kml'),
+        velMedia: get('velMedia'),
+        horasMov: get('horasMov')
+      };
+      entry.score = Object.keys(WEIGHTS).reduce((sum,k)=> sum + (entry[k]||0) * WEIGHTS[k], 0);
+      out.push(entry);
+    }
+    return out.length ? out : null;
+  }
+
+  function parseFromWorkbook(wb){
+    const found = findHeaderAndRows(wb);
+    if(!found.found) return {rows:null, preview: found.preview};
+    return {rows: extractRows(found.rows, found.headerIdx, found.colMap)};
+  }
+
+  function parseArrayBuffer(arrayBuffer){
+    try{
+      const wb = XLSX.read(arrayBuffer, {type:'array'});
+      return parseFromWorkbook(wb);
+    }catch(e){
+      return {rows:null, error: e.message};
+    }
+  }
+
+  function parseAsText(text){
+    try{
+      const wb = XLSX.read(text, {type:'string'});
+      return parseFromWorkbook(wb);
+    }catch(e){
+      return {rows:null, error: e.message};
+    }
+  }
+
+  function fmtNum(n, digits){
+    digits = digits === undefined ? 2 : digits;
+    return (n||0).toLocaleString('pt-BR', {minimumFractionDigits:digits, maximumFractionDigits:digits});
+  }
+  function fmtPct(fraction){
+    return ((fraction||0)*100).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
+  }
+  function fmtDatePill(iso){
+    const [y,m,d] = iso.split('-');
+    return d+'/'+m+'/'+y;
+  }
+
+  function sortRows(rows, mode){
+    const arr = rows.slice();
+    if(mode === 'score-desc') arr.sort((a,b)=> b.score - a.score);
+    else if(mode === 'score-asc') arr.sort((a,b)=> a.score - b.score);
+    else if(mode === 'km-desc') arr.sort((a,b)=> b.km - a.km);
+    else if(mode === 'km-asc') arr.sort((a,b)=> a.km - b.km);
+    return arr;
+  }
+
+  function renderPills(){
+    const dates = Object.keys(analyses).sort().reverse();
+    els.datePills.innerHTML = '';
+    dates.forEach(d=>{
+      const pill = document.createElement('div');
+      pill.className = 'pill' + (d === currentDate ? ' active' : '');
+      pill.innerHTML = '<span>'+fmtDatePill(d)+'</span><span class="del" title="Remover análise">✕</span>';
+      pill.querySelector('span:first-child').addEventListener('click', ()=>{
+        currentDate = d;
+        render();
+      });
+      pill.querySelector('.del').addEventListener('click', async (e)=>{
+        e.stopPropagation();
+        delete analyses[d];
+        await saveAll();
+        if(currentDate === d){
+          const remaining = Object.keys(analyses).sort().reverse();
+          currentDate = remaining.length ? remaining[0] : null;
+        }
+        render();
+      });
+      els.datePills.appendChild(pill);
+    });
+  }
+
+  function renderTable(){
+    const data = analyses[currentDate];
+    if(!data){
+      els.emptyState.style.display = '';
+      els.tableWrap.style.display = 'none';
+      els.toolbar.style.display = 'none';
+      return;
+    }
+    els.emptyState.style.display = 'none';
+    els.tableWrap.style.display = '';
+    els.toolbar.style.display = 'flex';
+
+    const allRows = data.rows;
+    const maxAbs = Math.max(1, ...allRows.map(r=> Math.abs(r.score)));
+
+    let displayRows;
+    if(showWorst5){
+      displayRows = sortRows(allRows, 'score-asc').slice(0,5);
+    }else{
+      displayRows = sortRows(allRows, sortMode);
+    }
+
+    els.tbody.innerHTML = '';
+    displayRows.forEach((r, idx)=>{
+      const tr = document.createElement('tr');
+      tr.className = 'row';
+      const rankClass = idx === 0 ? 'top' : (r.score === Math.min(...allRows.map(x=>x.score)) ? 'bottom' : '');
+      const barPct = Math.min(100, (Math.abs(r.score)/maxAbs)*50);
+      const isPos = r.score >= 0;
+
+      tr.innerHTML = `
+        <td><span class="rank ${rankClass}">${idx+1}</span></td>
+        <td class="name">${r.motorista}</td>
+        <td class="num">${fmtNum(r.km)}</td>
+        <td class="num">${fmtNum(r.kml)}</td>
+        <td class="num">
+          <div class="score-cell">
+            <span class="score-value ${isPos ? 'pos':'neg'}">${fmtNum(r.score,1)}</span>
+            <div class="bar-track">
+              <div class="bar-mid"></div>
+              <div class="bar-fill ${isPos?'pos':'neg'}" style="width:${barPct}%"></div>
+            </div>
+          </div>
+        </td>`;
+
+      const detailTr = document.createElement('tr');
+      detailTr.className = 'detail-row hidden';
+      const metrics = [
+        ['Lenta', r.lenta, WEIGHTS.lenta],
+        ['Abaixo da verde', r.abaixoVerde, WEIGHTS.abaixoVerde],
+        ['Econômico', r.economico, WEIGHTS.economico],
+        ['Potência', r.potencia, WEIGHTS.potencia],
+        ['Amarelo', r.amarelo, WEIGHTS.amarelo],
+        ['Vermelho', r.vermelho, WEIGHTS.vermelho]
+      ];
+      const metricsHtml = metrics.map(([label, frac, weight])=>{
+        const pts = frac*weight;
+        return `<div class="metric">
+          <div class="m-label">${label}</div>
+          <div class="m-value">${fmtPct(frac)}</div>
+          <div class="m-pts ${pts>=0?'pos':'neg'}">${pts>=0?'+':''}${fmtNum(pts,1)} pts</div>
+        </div>`;
+      }).join('');
+      detailTr.innerHTML = `<td colspan="5"><div class="detail-inner">${metricsHtml}</div></td>`;
+
+      tr.addEventListener('click', ()=> detailTr.classList.toggle('hidden'));
+
+      els.tbody.appendChild(tr);
+      els.tbody.appendChild(detailTr);
+    });
+  }
+
+  function render(){
+    renderPills();
+    renderTable();
+    els.sortSelect.value = sortMode;
+    els.sortSelect.disabled = showWorst5;
+    els.worstToggle.classList.toggle('active', showWorst5);
+  }
+
+  // Events
+  els.importBtn.addEventListener('click', ()=> els.fileInput.click());
+  els.importBtnEmpty.addEventListener('click', ()=> els.fileInput.click());
+
+  function openDateModalWith(rows){
+    pendingRows = rows;
+    els.dateInput.value = new Date().toISOString().slice(0,10);
+    els.dateModal.classList.remove('hidden');
+  }
+
+  function showDiagnostic(preview){
+    const rows = preview && preview.length ? preview : [];
+    const text = rows.length
+      ? rows.map((r,i)=> 'Linha '+(i+1)+': ' + (r||[]).map(c=> (c===null||c===undefined) ? '' : c.toString()).join(' | ')).join('\n')
+      : 'A planilha parece estar vazia.';
+    document.getElementById('diagnosticContent').textContent = text;
+    document.getElementById('diagnosticModal').classList.remove('hidden');
+  }
+  document.getElementById('closeDiagnostic').addEventListener('click', ()=>{
+    document.getElementById('diagnosticModal').classList.add('hidden');
+  });
+  document.getElementById('copyDiagnostic').addEventListener('click', async ()=>{
+    const text = document.getElementById('diagnosticContent').textContent;
+    try{
+      await navigator.clipboard.writeText(text);
+      showToast('Diagnóstico copiado.');
+    }catch(e){
+      showToast('Não foi possível copiar automaticamente. Selecione o texto manualmente.', true);
+    }
+  });
+
+  els.fileInput.addEventListener('change', async (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+
+    if(libStatus !== 'ready'){
+      showToast('Carregando biblioteca de planilhas, aguarde um instante…');
+      const ok = await ensureXlsxLib();
+      if(!ok){
+        showToast('Não foi possível carregar a biblioteca de leitura de planilhas (verifique a conexão com a internet ou um bloqueio de rede) e tente novamente.', true);
+        els.fileInput.value = '';
+        return;
+      }
+    }
+
+    const bufferReader = new FileReader();
+    bufferReader.onload = (ev)=>{
+      const result = parseArrayBuffer(ev.target.result);
+      if(result.rows){
+        openDateModalWith(result.rows);
+        els.fileInput.value = '';
+        return;
+      }
+      // Fallback: some dashboard exports save an HTML table with an .xlsx extension.
+      const textReader = new FileReader();
+      textReader.onload = (ev2)=>{
+        const textResult = parseAsText(ev2.target.result);
+        if(textResult.rows){
+          openDateModalWith(textResult.rows);
+        }else if(result.error || textResult.error){
+          showToast('Erro ao processar o arquivo: ' + (result.error || textResult.error), true);
+        }else{
+          showToast("Não encontramos a coluna 'Motorista' nesta planilha.", true);
+          showDiagnostic(result.preview || textResult.preview);
+        }
+        els.fileInput.value = '';
+      };
+      textReader.onerror = ()=>{
+        showToast('Erro ao ler a planilha. Verifique o arquivo.', true);
+        els.fileInput.value = '';
+      };
+      textReader.readAsText(file);
+    };
+    bufferReader.onerror = ()=>{
+      showToast('Erro ao ler a planilha. Verifique o arquivo.', true);
+      els.fileInput.value = '';
+    };
+    bufferReader.readAsArrayBuffer(file);
+  });
+
+  els.cancelImport.addEventListener('click', ()=>{
+    pendingRows = null;
+    els.dateModal.classList.add('hidden');
+  });
+
+  els.confirmImport.addEventListener('click', async ()=>{
+    if(!els.dateInput.value || !pendingRows) return;
+    const dateKey = els.dateInput.value;
+    analyses[dateKey] = { importedAt: Date.now(), rows: pendingRows };
+    const ok = await saveAll();
+    els.dateModal.classList.add('hidden');
+    pendingRows = null;
+    if(ok){
+      currentDate = dateKey;
+      showToast('Planilha importada com sucesso.');
+      render();
+    }
+  });
+
+  els.sortSelect.addEventListener('change', (e)=>{
+    sortMode = e.target.value;
+    render();
+  });
+
+  els.worstToggle.addEventListener('click', ()=>{
+    showWorst5 = !showWorst5;
+    render();
+  });
+
+  const clearModal = document.getElementById('confirmModal');
+  document.getElementById('clearBtn').addEventListener('click', ()=>{
+    if(Object.keys(analyses).length === 0){
+      showToast('Não há histórico para limpar.');
+      return;
+    }
+    clearModal.classList.remove('hidden');
+  });
+  document.getElementById('cancelClear').addEventListener('click', ()=>{
+    clearModal.classList.add('hidden');
+  });
+  document.getElementById('confirmClear').addEventListener('click', async ()=>{
+    analyses = {};
+    currentDate = null;
+    showWorst5 = false;
+    const ok = await saveAll();
+    clearModal.classList.add('hidden');
+    if(ok) showToast('Histórico apagado.');
+    render();
+  });
+
+  (async function init(){
+    ensureXlsxLib(); // kick off in background, don't block the UI on it
+    await loadAll();
+    const dates = Object.keys(analyses).sort().reverse();
+    currentDate = dates.length ? dates[0] : null;
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
